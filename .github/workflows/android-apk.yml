@@ -5,13 +5,6 @@ on:
     branches: [ main ]
   workflow_dispatch: {}
 
-jobname: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch: {}
-
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -41,53 +34,12 @@ jobs:
           apt-get install -y --no-install-recommends libfontconfig1
 
       - name: Import project resources
-        run: godot --headless --path . --import || true
+        run: godot --headless --import || true
 
       - name: Build debug APK
         run: |
           mkdir -v -p build/android
-          godot --headless --path . --export-debug "Android" build/android/assetify.apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: assetify-apk
-          path: build/android/assetify.apk
-s:
-  build-android:
-    runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.7.2
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Move export templates into place
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/4.7.2.stable \
-             ~/.local/share/godot/export_templates/4.7.2.stable
-
-      - name: Generate debug keystore
-        run: |
-          mkdir -p ~/.android
-          keytool -genkey -v \
-            -keystore ~/.android/debug.keystore \
-            -storepass android -alias androiddebugkey \
-            -keypass android -keyalg RSA -keysize 2048 \
-            -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-
-      - name: Install missing system libraries
-        run: |
-          apt-get update
-          apt-get install -y --no-install-recommends libfontconfig1
-
-      - name: Import project resources
-        run: godot --headless --path . --import || true
-
-      - name: Build debug APK
-        run: |
-          mkdir -v -p build/android
-          godot --headless --path . --export-debug "Android" build/android/assetify.apk
+          godot --headless --export-debug "Android" build/android/assetify.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
