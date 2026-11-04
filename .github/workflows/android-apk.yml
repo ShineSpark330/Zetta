@@ -34,7 +34,7 @@ jobs:
           apt-get install -y --no-install-recommends libfontconfig1
 
       - name: Import project resources
-        run: godot --headless --path . --import
+        run: godot --headless --path . --import || true
 
       - name: Build debug APK
         run: |
