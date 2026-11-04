@@ -1,8 +1,8 @@
-name: Extract os.7z
+name: Extract Assetify-Godot-Project.7z
 
 on:
   push:
-    paths: [ "os.7z", "os.zip" ]
+    paths: [ "Assetify-Godot-Project.7z", "Assetify-Godot-Project.zip" ]
   workflow_dispatch:
 
 permissions:
@@ -22,18 +22,18 @@ jobs:
         run: |
           rm -rf /tmp/unpacked
           mkdir /tmp/unpacked
-          if [ -f os.7z ]; then
-            7z x os.7z -o/tmp/unpacked -y
-          elif [ -f os.zip ]; then
-            7z x os.zip -o/tmp/unpacked -y
+          if [ -f Assetify-Godot-Project.7z ]; then
+            7z x Assetify-Godot-Project.7z -o/tmp/unpacked -y
+          elif [ -f Assetify-Godot-Project.zip ]; then
+            7z x Assetify-Godot-Project.zip -o/tmp/unpacked -y
           else
-            echo "Neither os.7z nor os.zip found in the repo root" >&2
+            echo "Neither Assetify-Godot-Project.7z nor Assetify-Godot-Project.zip found in the repo root" >&2
             exit 1
           fi
           # Copy into the repo root, never touching .git or .github
           rsync -a --exclude='.git' --exclude='.github' /tmp/unpacked/ ./
           # Delete the archive
-          rm -f os.7z os.zip
+          rm -f Assetify-Godot-Project.7z Assetify-Godot-Project.zip
           ls -la
 
       - name: Commit extracted files
