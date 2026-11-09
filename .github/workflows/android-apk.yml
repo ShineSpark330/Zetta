@@ -8,41 +8,27 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    container:
-      image: barichello/godot-ci:4.7.2
     steps:
       - uses: actions/checkout@v4
 
-      - name: Move export templates into place
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates
-          mv /root/.local/share/godot/export_templates/4.7.2.stable \
-             ~/.local/share/godot/export_templates/4.7.2.stable
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-      - name: Generate debug keystore
-        run: |
-          mkdir -p ~/.android
-          keytool -genkey -v \
-            -keystore ~/.android/debug.keystore \
-            -storepass android -alias androiddebugkey \
-            -keypass android -keyalg RSA -keysize 2048 \
-            -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+      - uses: gradle/actions/setup-gradle@v4
 
-      - name: Install missing system libraries
-        run: |
-          apt-get update
-          apt-get install -y --no-install-recommends libfontconfig1
-
-      - name: Import project resources
-        run: godot --headless --import || true
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
       - name: Build debug APK
         run: |
-          mkdir -v -p build/android
-          godot --headless --export-debug "Android" build/android/assetify.apk
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: assetify-apk
-          path: build/android/assetify.apk
+          name: SwfAssetManager-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
